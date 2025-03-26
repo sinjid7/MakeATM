@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; } // 싱글톤 인스턴스
     public UserData userData;
     public PopupError popupError; // 잔액 부족 팝업
+    public PopupBank popupBank;
+    public PopupLogin popupLogin; // 로그인 창
 
     // 세이브 키
     public const string UserNameKey = "userName";
@@ -29,12 +31,30 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        LoadUserData(); // 시작할 때 로드된 데이터가 있으면 반영
-        // 유저데이터 초기화
-        if (userData == null)
-        {
-            GameManager.Instance.InitializeUserData("신파프리카", 200000, 50000);
-        }
+        ShowLoginPopup();
+    }
+
+    // 로그인 팝업 보여주기
+    public void ShowLoginPopup()
+    {
+        popupLogin.gameObject.SetActive(true);
+        popupBank.gameObject.SetActive(false);
+    }
+
+    // // 로그인 팝업 숨김
+    public void HideLoginPopup()
+    {
+        popupLogin.gameObject.SetActive(false);
+        popupBank.gameObject.SetActive(true);
+
+        LoadUserData(); // 유저 데이터 로드
+        popupBank.UpdatePopupUI(); // 은행 ui업데이트
+    }
+
+    // 로그인을 성공하면 팝업뱅크를 보여줌
+    public void LoginSuccess()
+    {
+        HideLoginPopup();
     }
 
     // 유저 데이터 초기화 함수
@@ -52,6 +72,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt(BalanceKey, userData.balance);
         PlayerPrefs.Save(); // PlayerPrefs에 저장
     }
+
     //저장된 유저 데이터를 로드하는 함수
     public void LoadUserData()
     {
@@ -65,7 +86,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            userData = new UserData("신파프리카", 200000, 50000);
+            userData = new UserData("신파프리카", 200000, 50000); // 저장된 데이터가 없으면 기본값으로 초기화
         }
 
         UpdateUI();
